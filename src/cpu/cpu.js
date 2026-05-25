@@ -1,3 +1,4 @@
+import { Pipeline } from "./pipeline";
 import { executeInstruction } from "./instructions";
 
 export class CPU {
@@ -14,6 +15,9 @@ export class CPU {
     this.pc = 0;
 
     this.program = [];
+
+    this.pipeline = new Pipeline();
+
   }
 
   loadProgram(program) {
@@ -21,6 +25,7 @@ export class CPU {
     this.program = program;
 
     this.pc = 0;
+
   }
 
   step() {
@@ -29,9 +34,19 @@ export class CPU {
 
     if (!instruction) return;
 
+    this.pipeline.writeback = this.pipeline.execute;
+
+    this.pipeline.execute = this.pipeline.decode;
+
+    this.pipeline.decode = this.pipeline.fetch;
+
+    this.pipeline.fetch =
+      `${instruction.opcode} ${instruction.args.join(", ")}`;
+
     executeInstruction(this, instruction);
 
     this.pc++;
+
   }
 
 }

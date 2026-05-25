@@ -1,27 +1,22 @@
 export function parseProgram(code) {
 
-  return code
-    .split("\n")
+  const lines = code.split("\n");
 
-    .map(line => line.trim())
+  return lines.map(line => {
 
-    .filter(line => line !== "")
+    const cleanLine = line.trim();
 
-    .map(line => {
+    const [opcode, ...rest] = cleanLine.split(" ");
 
-      const parts = line.split(" ");
+    const args = rest.join(" ")
+      .split(",")
+      .map(arg => arg.trim());
 
-      const opcode = parts[0];
+    return {
+      opcode,
+      args
+    };
 
-      const args = parts[1]
-        ? parts[1].split(",").map(arg => arg.trim())
-        : [];
-
-      return {
-        opcode,
-        args,
-      };
-
-    });
+  });
 
 }
