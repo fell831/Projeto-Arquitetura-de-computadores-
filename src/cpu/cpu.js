@@ -1,3 +1,5 @@
+import { executeInstruction } from "./instructions";
+
 export class CPU {
 
   constructor() {
@@ -12,6 +14,24 @@ export class CPU {
     this.pc = 0;
 
     this.program = [];
+  }
+
+  loadProgram(program) {
+
+    this.program = program;
+
+    this.pc = 0;
+  }
+
+  step() {
+
+    const instruction = this.program[this.pc];
+
+    if (!instruction) return;
+
+    executeInstruction(this, instruction);
+
+    this.pc++;
   }
 
 }
