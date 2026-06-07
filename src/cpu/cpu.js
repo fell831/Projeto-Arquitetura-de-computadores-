@@ -1,10 +1,8 @@
-import { Pipeline } from "./pipeline";
 import { executeInstruction } from "./instructions";
+import { Pipeline } from "./pipeline";
 
 export class CPU {
-
   constructor() {
-
     this.registers = {
       R0: 0,
       R1: 0,
@@ -13,40 +11,56 @@ export class CPU {
     };
 
     this.pc = 0;
-
     this.program = [];
-
     this.pipeline = new Pipeline();
+  }
 
+  reset() {
+    this.registers = {
+      R0: 0,
+      R1: 0,
+      R2: 0,
+      R3: 0,
+    };
+
+    this.pc = 0;
+    this.program = [];
+    this.pipeline.clear();
   }
 
   loadProgram(program) {
-
+    this.reset();
     this.program = program;
-
-    this.pc = 0;
-
   }
 
-  step() {
-
-    const instruction = this.program[this.pc];
-
-    if (!instruction) return;
-
-    this.pipeline.writeback = this.pipeline.execute;
-
-    this.pipeline.execute = this.pipeline.decode;
-
-    this.pipeline.decode = this.pipeline.fetch;
-
-    this.pipeline.fetch =
-      `${instruction.opcode} ${instruction.args.join(", ")}`;
-
-    executeInstruction(this, instruction);
-
-    this.pc++;
-
+  hasPendingWork() {
+    return (
+      this.pc < this.program.length ||
+      this.pipeline.fetch !== null ||
+      this.pipeline.decode !== null ||
+      this.pipeline.execute !== null ||
+      this.pipeline.writeback !== null
+    );
   }
 
+  clock() {
+    const nextWriteback = this.pipeline.execute;
+    const nextExecute = this.pipeline.decode;
+    const nextDecode = this.pipeline.fetch;
+    const nextFetch =
+      this.pc < this.program.length ? this.program[this.pc] : null;
+
+    this.pipeline.writeback = nextWriteback;
+    this.pipeline.execute = nextExecute;
+    this.pipeline.decode = nextDecode;
+    this.pipeline.fetch = nextFetch;
+
+    if (nextFetch) {
+      this.pc++;
+    }
+
+    if (nextWriteback) {
+      executeInstruction(this, nextWriteback);
+    }
+  }
 }

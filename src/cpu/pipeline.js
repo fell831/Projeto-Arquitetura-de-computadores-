@@ -1,15 +1,15 @@
 export class Pipeline {
-
   constructor() {
-
-    this.fetch = "";
-
-    this.decode = "";
-
-    this.execute = "";
-
-    this.writeback = "";
-
+    this.fetch = null;
+    this.decode = null;
+    this.execute = null;
+    this.writeback = null;
   }
 
+  clear() {
+    this.fetch = null;
+    this.decode = null;
+    this.execute = null;
+    this.writeback = null;
+  }
 }
