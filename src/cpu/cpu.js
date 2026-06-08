@@ -10,6 +10,10 @@ export class CPU {
       R3: 0,
     };
 
+    this.memory = [0, 0, 0, 0, 0, 0, 0, 0];
+
+    this.memoryPointer = 0;
+
     this.pc = 0;
     this.program = [];
     this.pipeline = new Pipeline();
@@ -22,6 +26,10 @@ export class CPU {
       R2: 0,
       R3: 0,
     };
+
+    this.memory = [0, 0, 0, 0, 0, 0, 0, 0];
+
+    this.memoryPointer = 0;
 
     this.pc = 0;
     this.program = [];
@@ -47,8 +55,11 @@ export class CPU {
     const nextWriteback = this.pipeline.execute;
     const nextExecute = this.pipeline.decode;
     const nextDecode = this.pipeline.fetch;
+
     const nextFetch =
-      this.pc < this.program.length ? this.program[this.pc] : null;
+      this.pc < this.program.length
+        ? this.program[this.pc]
+        : null;
 
     this.pipeline.writeback = nextWriteback;
     this.pipeline.execute = nextExecute;

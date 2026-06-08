@@ -1,56 +1,56 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 
-import Editor from "./components/Editor";
 import Registers from "./components/Registers";
-import Controls from "./components/Controls";
+import Memory from "./components/Memory";
 import PipelineView from "./components/PipelineView";
+import Controls from "./components/Controls";
 
 import { CPU } from "./cpu/cpu";
 import { parseProgram } from "./cpu/parser";
 
 function App() {
   const cpuRef = useRef(new CPU());
-  const timerRef = useRef(null);
 
-  const [code, setCode] = useState(`MOV R1, 5
-MOV R2, 8
-ADD R1, R2`);
+  const [code, setCode] = useState("");
 
   const [registers, setRegisters] = useState({
     ...cpuRef.current.registers,
   });
+
+  const [memory, setMemory] = useState([
+    ...cpuRef.current.memory,
+  ]);
 
   const [pipeline, setPipeline] = useState({
     ...cpuRef.current.pipeline,
   });
 
   const [pc, setPc] = useState(cpuRef.current.pc);
+
   const [isRunning, setIsRunning] = useState(false);
+
+  const [operation, setOperation] = useState("MOV");
+
+  const [register, setRegister] = useState("R1");
+
+  const [register2, setRegister2] = useState("R2");
+
+  const [value, setValue] = useState("");
 
   function syncScreen() {
     const cpu = cpuRef.current;
 
     setRegisters({ ...cpu.registers });
+    setMemory([...cpu.memory]);
     setPipeline({ ...cpu.pipeline });
     setPc(cpu.pc);
   }
 
-  function stopAuto() {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-
-    setIsRunning(false);
-  }
-
   function loadProgram() {
-    stopAuto();
+    const program = parseProgram(code);
 
-    const parsedProgram = parseProgram(code);
-
-    cpuRef.current.loadProgram(parsedProgram);
+    cpuRef.current.loadProgram(program);
 
     syncScreen();
   }
@@ -59,8 +59,8 @@ ADD R1, R2`);
     const cpu = cpuRef.current;
 
     if (!cpu.hasPendingWork()) {
-      const parsedProgram = parseProgram(code);
-      cpu.loadProgram(parsedProgram);
+      const program = parseProgram(code);
+      cpu.loadProgram(program);
     }
 
     cpu.clock();
@@ -69,54 +69,160 @@ ADD R1, R2`);
   }
 
   function runAuto() {
-    const cpu = cpuRef.current;
-
-    if (isRunning) {
-      return;
-    }
-
-    if (!cpu.hasPendingWork()) {
-      const parsedProgram = parseProgram(code);
-      cpu.loadProgram(parsedProgram);
-      syncScreen();
-    }
+    if (isRunning) return;
 
     setIsRunning(true);
 
-    timerRef.current = setInterval(() => {
-      const currentCpu = cpuRef.current;
+    const interval = setInterval(() => {
+      const cpu = cpuRef.current;
 
-      if (currentCpu.hasPendingWork()) {
-        currentCpu.clock();
-        syncScreen();
-      } else {
-        stopAuto();
+      if (!cpu.hasPendingWork()) {
+        clearInterval(interval);
+        setIsRunning(false);
+        return;
       }
+
+      cpu.clock();
+
+      syncScreen();
     }, 1000);
   }
 
   function resetAll() {
-    stopAuto();
-
     cpuRef.current.reset();
 
     syncScreen();
   }
 
-  useEffect(() => {
-    return () => stopAuto();
-  }, []);
+  function addInstruction() {
+    const instructions = code
+      .split("\n")
+      .filter((line) => line.trim() !== "");
+
+    if (instructions.length >= 7) {
+      alert("Máximo de 7 instruções.");
+      return;
+    }
+
+    let newInstruction = "";
+
+    if (operation === "ADD" || operation === "SUB") {
+      newInstruction = `${operation} ${register}, ${register2}`;
+    } else {
+      if (!value) return;
+
+      newInstruction = `${operation} ${register}, ${value}`;
+    }
+
+    setCode((prev) =>
+      prev
+        ? prev + "\n" + newInstruction
+        : newInstruction
+    );
+
+    setValue("");
+  }
+
+  function clearProgram() {
+    setCode("");
+  }
 
   return (
     <div className="app">
       <h1>Simulador de CPU</h1>
 
-      <p className="subtitle">
-        Cada clique em <strong>Próximo Ciclo</strong> representa um ciclo de
-        clock da CPU.
-      </p>
+      <Registers
+        registers={registers}
+        pc={pc}
+      />
 
-      <Editor code={code} setCode={setCode} />
+      <Memory
+        memory={memory}
+      />
+
+      <PipelineView
+        pipeline={pipeline}
+      />
+
+      <div className="assembler-box">
+        <h2>Montador Visual</h2>
+
+        <div className="assembler-form">
+
+          <select
+            value={operation}
+            onChange={(e) => setOperation(e.target.value)}
+          >
+            <option>MOV</option>
+            <option>ADD</option>
+            <option>SUB</option>
+            <option>STORE</option>
+            <option>LOAD</option>
+          </select>
+
+          <select
+            value={register}
+            onChange={(e) => setRegister(e.target.value)}
+          >
+            <option>R0</option>
+            <option>R1</option>
+            <option>R2</option>
+            <option>R3</option>
+          </select>
+
+          {(operation === "ADD" || operation === "SUB") ? (
+
+            <select
+              value={register2}
+              onChange={(e) => setRegister2(e.target.value)}
+            >
+              <option>R0</option>
+              <option>R1</option>
+              <option>R2</option>
+              <option>R3</option>
+            </select>
+
+          ) : (
+
+            <input
+              type="number"
+              placeholder="Valor"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+
+          )}
+
+          <button onClick={addInstruction}>
+            Adicionar
+          </button>
+
+          <button onClick={clearProgram}>
+            Limpar Programa
+          </button>
+
+        </div>
+      </div>
+
+      <div className="program-box">
+        <h2>Programa Atual</h2>
+
+        {code
+          .split("\n")
+          .filter((line) => line.trim() !== "")
+          .map((line, index) => (
+            <div
+              key={index}
+              className={`program-line ${
+                index === pc
+                  ? "current-line"
+                  : ""
+              }`}
+            >
+              {String(index + 1).padStart(2, "0")} │ {line}
+            </div>
+          ))}
+      </div>
 
       <Controls
         onLoad={loadProgram}
@@ -125,10 +231,6 @@ ADD R1, R2`);
         onReset={resetAll}
         isRunning={isRunning}
       />
-
-      <Registers registers={registers} pc={pc} />
-
-      <PipelineView pipeline={pipeline} />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 export function parseProgram(code) {
 
-  const lines = code.split("\n");
+  const lines = code
+    .split("\n")
+    .filter(line => line.trim() !== "");
 
   return lines.map(line => {
 
@@ -8,7 +10,8 @@ export function parseProgram(code) {
 
     const [opcode, ...rest] = cleanLine.split(" ");
 
-    const args = rest.join(" ")
+    const args = rest
+      .join(" ")
       .split(",")
       .map(arg => arg.trim());
 

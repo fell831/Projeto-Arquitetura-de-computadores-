@@ -1,9 +1,12 @@
 function formatInstruction(instruction) {
   if (!instruction) {
-    return "vazio";
+    return "-";
   }
 
-  return `${instruction.opcode} ${instruction.args.join(", ")}`;
+  const opcode = instruction.opcode || "";
+  const args = instruction.args || [];
+
+  return `${opcode} ${args.join(", ")}`;
 }
 
 export default function PipelineView({ pipeline }) {
