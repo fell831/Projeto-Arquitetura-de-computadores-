@@ -5,6 +5,7 @@ import Registers from "./components/Registers";
 import Memory from "./components/Memory";
 import PipelineView from "./components/PipelineView";
 import Controls from "./components/Controls";
+import ExecutionMemory from "./components/ExecutionMemory";
 
 import { CPU } from "./cpu/cpu";
 import { parseProgram } from "./cpu/parser";
@@ -21,6 +22,10 @@ function App() {
   const [memory, setMemory] = useState([
     ...cpuRef.current.memory,
   ]);
+
+  const [executedMemory, setExecutedMemory] = useState([
+  ...cpuRef.current.executedMemory,
+]);
 
   const [pipeline, setPipeline] = useState({
     ...cpuRef.current.pipeline,
@@ -43,6 +48,7 @@ function App() {
 
     setRegisters({ ...cpu.registers });
     setMemory([...cpu.memory]);
+    setExecutedMemory([...cpu.executedMemory]);
     setPipeline({ ...cpu.pipeline });
     setPc(cpu.pc);
   }
@@ -135,6 +141,10 @@ function App() {
     setCode("");
   }
 
+  function sendToPipeline(index) {
+  cpuRef.current.sendExecutedToPipeline(index);
+  syncScreen();
+}
   return (
     <div className="app">
 
@@ -147,6 +157,11 @@ function App() {
 
       <Memory
         memory={memory}
+      />
+
+      <ExecutionMemory
+        executedMemory={executedMemory}
+        onSendToPipeline={sendToPipeline}
       />
 
       <PipelineView

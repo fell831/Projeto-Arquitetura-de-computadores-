@@ -11,8 +11,13 @@ export class CPU {
     };
 
     this.memory = [0, 0, 0, 0, 0, 0, 0, 0];
-
     this.memoryPointer = 0;
+
+    this.executedMemory = [];
+    this.executionId = 1;
+
+    this.executedMemory = [];
+    this.executionId = 1;
 
     this.pc = 0;
     this.program = [];
@@ -28,8 +33,10 @@ export class CPU {
     };
 
     this.memory = [0, 0, 0, 0, 0, 0, 0, 0];
-
     this.memoryPointer = 0;
+
+    this.executedMemory = [];
+    this.executionId = 1;
 
     this.pc = 0;
     this.program = [];
@@ -49,6 +56,36 @@ export class CPU {
       this.pipeline.execute !== null ||
       this.pipeline.writeback !== null
     );
+  }
+
+  saveExecution(instruction, result) {
+    const data = {
+      id: this.executionId++,
+      instruction: {
+        opcode: instruction.opcode,
+        args: [...instruction.args],
+      },
+      result,
+    };
+
+    this.executedMemory.unshift(data);
+
+    if (this.executedMemory.length > 8) {
+      this.executedMemory.pop();
+    }
+  }
+
+  sendExecutedToPipeline(index) {
+    const item = this.executedMemory[index];
+
+    if (!item) return;
+
+    const instructionCopy = {
+      opcode: item.instruction.opcode,
+      args: [...item.instruction.args],
+    };
+
+    this.program.splice(this.pc, 0, instructionCopy);
   }
 
   clock() {
