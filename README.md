@@ -14,6 +14,8 @@ O projeto foi criado para representar de forma didática como uma CPU executa in
 - Pipeline de execução
 - Instruções Assembly
 - Ciclos de clock
+- Operações aritméticas da ULA
+- Transferência de dados entre registradores e memória
 
 O sistema foi desenvolvido com foco educacional para auxiliar no aprendizado de Arquitetura de Computadores.
 
@@ -60,7 +62,8 @@ Possui 8 posições:
 A RAM armazena:
 
 - Valores gravados através da instrução STORE
-- Resultados das operações executadas pela CPU
+- Valores carregados através da instrução LOAD
+- Resultados das operações realizadas pela CPU
 
 ---
 
@@ -69,15 +72,19 @@ A RAM armazena:
 O simulador implementa um pipeline simplificado com quatro estágios:
 
 ### FETCH
-Busca da instrução na memória de programa.
+
+Busca da próxima instrução do programa.
 
 ### DECODE
-Decodificação da instrução Assembly.
+
+Interpretação e decodificação da instrução Assembly.
 
 ### EXECUTE
-Execução da operação.
+
+Execução da operação solicitada.
 
 ### WRITEBACK
+
 Escrita do resultado nos registradores ou memória.
 
 ---
@@ -93,6 +100,8 @@ Através do montador visual é possível selecionar:
 - MOV
 - ADD
 - SUB
+- MUL
+- DIV
 - STORE
 - LOAD
 
@@ -103,9 +112,13 @@ Através do montador visual é possível selecionar:
 - R2
 - R3
 
-### Valores
+### Operandos
 
-Valores numéricos ou registradores dependendo da operação escolhida.
+Dependendo da instrução selecionada:
+
+- Valores numéricos
+- Registradores
+- Endereços de memória
 
 ---
 
@@ -115,7 +128,7 @@ Valores numéricos ou registradores dependendo da operação escolhida.
 
 Move um valor para um registrador.
 
-Exemplo:
+### Exemplo
 
 ```assembly
 MOV R1, 20
@@ -131,9 +144,9 @@ R1 = 20
 
 ## ADD
 
-Soma valores entre registradores.
+Realiza a soma entre registradores.
 
-Exemplo:
+### Exemplo
 
 ```assembly
 ADD R1, R2
@@ -149,9 +162,9 @@ R1 = R1 + R2
 
 ## SUB
 
-Subtrai valores entre registradores.
+Realiza a subtração entre registradores.
 
-Exemplo:
+### Exemplo
 
 ```assembly
 SUB R1, R2
@@ -165,11 +178,49 @@ R1 = R1 - R2
 
 ---
 
+## MUL
+
+Realiza a multiplicação entre registradores.
+
+### Exemplo
+
+```assembly
+MUL R1, R2
+```
+
+Resultado:
+
+```text
+R1 = R1 × R2
+```
+
+---
+
+## DIV
+
+Realiza a divisão entre registradores.
+
+### Exemplo
+
+```assembly
+DIV R1, R2
+```
+
+Resultado:
+
+```text
+R1 = R1 ÷ R2
+```
+
+O sistema possui tratamento para divisão por zero.
+
+---
+
 ## STORE
 
 Armazena um valor de registrador na memória RAM.
 
-Exemplo:
+### Exemplo
 
 ```assembly
 STORE R1, 0
@@ -187,7 +238,7 @@ RAM[0] = R1
 
 Carrega um valor da RAM para um registrador.
 
-Exemplo:
+### Exemplo
 
 ```assembly
 LOAD R2, 0
@@ -201,30 +252,54 @@ R2 = RAM[0]
 
 ---
 
+# 🧮 Unidade Lógica e Aritmética (ULA)
+
+O simulador já implementa as quatro operações aritméticas fundamentais executadas pela ULA:
+
+- Soma (ADD)
+- Subtração (SUB)
+- Multiplicação (MUL)
+- Divisão (DIV)
+
+Os resultados podem ser observados em tempo real:
+
+- Nos registradores
+- Na memória RAM
+- No pipeline da CPU
+
+---
+
 # ▶️ Modos de Execução
 
 ## Carregar Programa
 
 Converte as instruções criadas no montador visual para o formato utilizado pela CPU.
 
+---
+
 ## Próximo Ciclo
 
 Executa apenas um ciclo de clock.
 
-Permite acompanhar o pipeline passo a passo.
+Permite acompanhar o funcionamento interno do pipeline passo a passo.
+
+---
 
 ## Executar Automático
 
 Executa continuamente até o término do programa.
 
+---
+
 ## Resetar
 
-Reinicia:
+Reinicia completamente o simulador:
 
 - Registradores
-- RAM
+- Memória RAM
 - Pipeline
 - Program Counter
+- Programa carregado
 
 ---
 
@@ -254,19 +329,22 @@ src
 
 # 🧠 Conceitos Demonstrados
 
-O simulador aborda diversos conceitos de Arquitetura de Computadores:
+O simulador aborda diversos conceitos fundamentais de Arquitetura de Computadores:
 
 - Registradores
 - Pipeline
 - Ciclo de Clock
 - Program Counter
 - Unidade de Controle
+- Unidade Lógica e Aritmética (ULA)
 - Memória RAM
 - Instruções Assembly
 - Busca de Instruções
 - Decodificação
 - Execução
 - Escrita de Resultados
+- Transferência entre Registradores e Memória
+- Operações Aritméticas
 
 ---
 
@@ -284,7 +362,12 @@ O simulador aborda diversos conceitos de Arquitetura de Computadores:
 ```assembly
 MOV R1, 20
 MOV R2, 30
+
 ADD R1, R2
+SUB R1, R2
+MUL R1, R2
+DIV R1, R2
+
 STORE R1, 0
 LOAD R3, 0
 ```
@@ -292,15 +375,53 @@ LOAD R3, 0
 Resultado esperado:
 
 ```text
-R1 = 50
+R1 = 20
 R2 = 30
-R3 = 50
+R3 = 20
 
-RAM[0] = 50
+RAM[0] = 20
 ```
+
+---
+
+# 🎯 Estado Atual do Projeto
+
+Funcionalidades concluídas:
+
+✅ Interface gráfica da CPU
+
+✅ Registradores
+
+✅ Program Counter (PC)
+
+✅ Memória RAM
+
+✅ Pipeline visual
+
+✅ Parser de Assembly
+
+✅ Montador Visual
+
+✅ MOV
+
+✅ ADD
+
+✅ SUB
+
+✅ MUL
+
+✅ DIV
+
+✅ STORE
+
+✅ LOAD
+
+✅ Execução passo a passo
+
+✅ Execução automática
 
 ---
 
 # 👨‍💻 Autores
 
-Projeto desenvolvido para a disciplina de Arquitetura de Computadores com o objetivo de demonstrar visualmente o funcionamento interno de uma CPU utilizando pipeline e execução de instruções Assembly.
+Projeto desenvolvido para a disciplina de Arquitetura de Computadores com o objetivo de demonstrar visualmente o funcionamento interno de uma CPU utilizando pipeline, memória RAM e execução de instruções Assembly.
