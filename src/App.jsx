@@ -106,12 +106,20 @@ function App() {
 
     let newInstruction = "";
 
-    if (operation === "ADD" || operation === "SUB") {
-      newInstruction = `${operation} ${register}, ${register2}`;
+    if (
+      operation === "ADD" ||
+      operation === "SUB" ||
+      operation === "MUL" ||
+      operation === "DIV"
+    ) {
+      newInstruction =
+        `${operation} ${register}, ${register2}`;
     } else {
+
       if (!value) return;
 
-      newInstruction = `${operation} ${register}, ${value}`;
+      newInstruction =
+        `${operation} ${register}, ${value}`;
     }
 
     setCode((prev) =>
@@ -129,6 +137,7 @@ function App() {
 
   return (
     <div className="app">
+
       <h1>Simulador de CPU</h1>
 
       <Registers
@@ -145,6 +154,7 @@ function App() {
       />
 
       <div className="assembler-box">
+
         <h2>Montador Visual</h2>
 
         <div className="assembler-form">
@@ -156,6 +166,8 @@ function App() {
             <option>MOV</option>
             <option>ADD</option>
             <option>SUB</option>
+            <option>MUL</option>
+            <option>DIV</option>
             <option>STORE</option>
             <option>LOAD</option>
           </select>
@@ -170,11 +182,16 @@ function App() {
             <option>R3</option>
           </select>
 
-          {(operation === "ADD" || operation === "SUB") ? (
+          {(operation === "ADD" ||
+            operation === "SUB" ||
+            operation === "MUL" ||
+            operation === "DIV") ? (
 
             <select
               value={register2}
-              onChange={(e) => setRegister2(e.target.value)}
+              onChange={(e) =>
+                setRegister2(e.target.value)
+              }
             >
               <option>R0</option>
               <option>R1</option>
@@ -188,7 +205,9 @@ function App() {
               type="number"
               placeholder="Valor"
               value={value}
-              onChange={(e) => setValue(e.target.value)}
+              onChange={(e) =>
+                setValue(e.target.value)
+              }
             />
 
           )}
@@ -202,9 +221,11 @@ function App() {
           </button>
 
         </div>
+
       </div>
 
       <div className="program-box">
+
         <h2>Programa Atual</h2>
 
         {code
@@ -219,9 +240,12 @@ function App() {
                   : ""
               }`}
             >
-              {String(index + 1).padStart(2, "0")} │ {line}
+              {String(index + 1).padStart(2, "0")}
+              {" │ "}
+              {line}
             </div>
           ))}
+
       </div>
 
       <Controls
@@ -231,6 +255,7 @@ function App() {
         onReset={resetAll}
         isRunning={isRunning}
       />
+
     </div>
   );
 }
