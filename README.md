@@ -59,7 +59,7 @@ Possui 8 posições:
 - RAM[6]
 - RAM[7]
 
-A RAM armazena:
+A RAM armazena;
 
 - Valores gravados através da instrução STORE
 - Valores carregados através da instrução LOAD
